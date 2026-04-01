@@ -1,0 +1,133 @@
+https://notebooklm.google.com/notebook/492404a2-4487-4e78-90d6-8e1f3d456ae5
+
+TOTAL INVOICE PRICE for MORAN NEW YORK
+
+Based on the cost elements and cost drivers identified in the contract and invoice data, we can build a formula-based cost model for Moran Towing’s operations in New York.
+In this formula, the Total Invoice Price is the sum of the individual calculated cost elements.
+The Moran Towing New York Formula:
+Total Cost = (Base Docking Cost) + (Vessel Size Premium) + (Fuel Surcharge) + (Discounted Escort/Other Services) + (Situational Fees)
+Here is the exact mathematical breakdown of how each element is calculated using its specific cost drivers:
+1. Base Docking Cost:
+[Number of Tugs] × [Contractual Base Rate] × [Shifting Multiplier]
+Contractual Base Rate: Driven by the contract year ($2,025 for Oct 2023–Sept 2024; $2,100 for Oct 2024–Sept 2025; $2,150 for Oct 2025–Sept 2026).
+Shifting Multiplier: 1.5 if the maneuver is a "shifting" service between berths within the same terminal; otherwise, it is 1.0.
+2. Vessel Size Premium:
+[Number of Tugs] × [NRT Fee]
+NRT Fee: $1,400 if the vessel's Net Registered Tonnage (NRT) is greater than 40,000; otherwise, $0.
+3. Fuel Surcharge:
+[Number of Tugs] × ( ( [Current Fuel Price] - $2.00 ) / $0.10 ) × $15.00
+Note: The fuel formula uses a base of $2.00 per gallon of Marine Ultra Low Sulfur Diesel. For every $0.10 above that base price, a $15 surcharge is added per tug. (The actual invoices show they round up to the nearest whole 10-cent increment; for example, $2.69/gallon triggers 7 increments, resulting in $105 per tug).
+4. Discounted Escort / Other Services:
+([Escort Hourly Rate] × [Escort Hours/Runtimes] × [Number of Tugs]) × 0.75
+Note: The contract states that "all other services, including but not limited to escorting," receive a 25% discount from the standard rate schedule. Multiplying by 0.75 applies this discount directly to the total escort charge.
+From September 2025, a new escort rate of $1,000/hr was applied for both varieties of escorting service. Due to this change, the discounted escort no longer applies to Ocean Network Express. However, the 25% discount still applies to other services.
+5. Situational Fees (If Applicable):
+[Detention Time over 30 mins] + [Cancellation Fees]
+Detention: The first 30 minutes of docking/undocking are free; time beyond that is billed at standard rates.
+Cancellation: If less than 2 hours' notice is given, it equals the discounted rate of the canceled scheduled service.
+
+Testing the Formula with a Real Example
+If we apply this formula to the tugboat Newt Moran assisting the vessel ONE HAWK on November 2, 2025 (Invoice #1126932), the formula aligns perfectly:
+Base Docking Cost: 1 Tug × $2,150 (2025/2026 rate) × 1.0 multiplier = $2,150.00
+Vessel Size Premium: 1 Tug × $1,400 (Vessel is 82,126 NRT, which is > 40k) = $1,400.00
+Fuel Surcharge: 1 Tug × 7 increments (Fuel was $2.69, which is $0.69 over base) × $15 = $105.00
+Discounted Escort Services: ($6,290.00 standard rate) × 0.75 = $4,717.50 (Shown on invoice as $6,290 minus $1,572.50)
+Situational Fees: $0 (None triggered)
+Total Cost for the Newt Moran: $2,150.00 + $1,400.00 + $105.00 + $4,717.50 = $8,372.50, matching exactly how the supplier generates their line items.
+
+
+
+
+
+
+
+
+NUMBER OF TUGS
+
+
+Based on the "Deep Draft Advisory" guidelines for the Port of New York and New Jersey and Moran's "Schedule of Rates," the unknowns in your formula can be determined by the vessel's size classification, its operational capabilities, and specific port billing rules.
+Here is how to determine the number of tugs and the escort runtimes:
+1. Determining the Number of Docking and Undocking Tugs
+The required number of tugs is strictly dictated by the Harbor Safety Deep Draft Advisory, which categorizes vessels by their Length Overall (LOA), beam, draft, and whether they have a working bow thruster:
+General Draft/Maneuver Rules: Any departure from Port Jersey with a draft of 41 feet or greater requires at least 3 tugboats. Backing into Port Liberty Bayonne (if pre-approved) requires at least 4 tugboats and slack water under general rules, though the Port Jersey specific notes state a minimum of 3 tugboats.
+Ultra Large Container Vessels (ULCV): Defined as having an LOA of 997 feet or greater, or a beam of 140 feet or greater.
+With a working bow thruster: Requires 3 tugs assigned to the berth.
+Without a working bow thruster: Requires 4 tugs.
+Super Large Container Vessels (SLCV): Defined as having an LOA of 1,165 feet or greater, or a beam greater than 159 feet.
+All SLCVs must have 2 tugs available at the Narrows with a docking pilot.
+With a working bow thruster: 2 additional tugs are assigned, bringing the total to 4 tugs.
+Without a working bow thruster: Up to 5 tugs will be assigned.
+2. Determining the Number of Escort Tugs
+The number of tugs billed for escorting generally matches the number of tugs mandated for the vessel's transit. You can see this alignment in the supplier's actual invoices:
+The ONE HAWK and ONE EAGLE both have an LOA of over 1,194 feet, classifying them as SLCVs. Their invoices show exactly 4 tugs being used for both docking/undocking and escorting.
+The ONE HONOLULU has an LOA of 1,097 feet, classifying it as a ULCV. Its invoice shows exactly 3 tugs used for the escorting maneuver.
+2-a. Escort Tugs Not Required If < ULCV,SLCV
+The Cape Hellas did not use escort tugs because of its smaller size, which exempts it from the port's mandatory escort regulations.
+According to the Harbor Safety Deep Draft Advisory, strict escorting rules—such as requiring multiple tugs for transit from the Narrows or through the Kill Van Kull—apply specifically to Ultra Large Container Vessels (ULCVs) and Super Large Container Vessels (SLCVs). A ULCV is defined as a vessel with a Length Overall (LOA) of 997 feet or greater, or a beam of 140 feet or greater.
+The invoice for the Cape Hellas indicates that its LOA is only 610.00 feet. Because it falls well below the 997-foot threshold, it is not classified as a ULCV or SLCV. Therefore, it was not required to have tugboats accompanying it during its navigational transit through the channels, and it only needed the standard two tugboats (JRT Moran and Thomas C Moran) for the physical docking maneuver at Howland Hook.
+
+2-b. Escort Only Tugs Assigned for Kill Van Kull transit
+Based on the Deep Draft Advisory and the provided invoice data, this is not an exception. The three-tug safety requirement was fully met, but it is important to distinguish between the tugs assigned for the navigational transit and the tugs billed for the final docking maneuver.
+According to the Deep Draft Advisory guidelines for ULCVs with a working bow thruster bound into the Kill Van Kull, "three (3) tug boats will be assigned from KVK LB 9 to the Berth".
+This rule mandates the number of tugs required to safely escort the vessel through the narrow channel to the berth, but it does not dictate that all three tugs must be utilized to physically push the vessel during the final docking operation.
+If you look closely at Invoice #1127941, Moran Towing did indeed deploy exactly three tugs to accompany the ONE HONOLULU:
+William E Moran
+Newt Moran
+Mary Turecamo
+While all three tugs were assigned to fulfill the transit safety requirement to the berth, only two (William E Moran and Newt Moran) were utilized for the actual flat-rate docking maneuver at Howland Hook. The third tug (Mary Turecamo) was dispatched strictly to satisfy the 3-tug channel transit rule and was released prior to the final docking phase, which is why it was correctly billed as an "Escort Only" service.
+
+
+3. Determining Escort Hours and Runtimes
+Escorting duration is not just the actual time the tug spends next to the ship; it is heavily influenced by minimum billing rules and geographic travel time:
+The Two-Hour Minimum: Moran's contract and rate schedule mandate that hourly services, including escorting and tethered escorting, are strictly subject to a two (2) hour minimum per tug, pro-rated to the nearest half hour.
+Zone Running Times (Runtimes): In addition to the actual time assisting the vessel, Moran charges "running times" to cover the travel time for the tug from its customary tug station to the job location, and back. The port is divided into specific geographic zones that dictate these fixed runtimes (e.g., 1.25 hours, 1.50 hours, etc.).
+How it looks on the invoice: This is why a short maneuver is still billed heavily. For example, on the ONE HAWK invoice, the actual tethered escort from Port Liberty Bayonne to Robbins Reef only took 20 minutes (06:30 to 06:50), but because of the "Plus Runtimes" and the two-hour minimum rule, the invoice bills for exactly 2.00 hours for each of the 4 tugs. On the ONE HONOLULU, an escort taking 1 hour and 5 minutes (05:05 to 06:10) was billed at 2.50 hours after runtimes were factored in.
+
+
+
+
+
+
+
+
+
+
+TOTAL ESCORT COST (RUNTIME)
+
+Total Escort Cost = [Number of Tugs] × [Total Billed Hours] × [Hourly Rate] × 0.75
+Here is the exact breakdown of how to determine each variable in this formula based on the port's rate schedule and contractual agreements:
+[Total Billed Hours]: This is calculated by taking the [Actual Escort Duration] and adding the [Zone Running Times] to and from the location where the service is rendered. The specific running times are fixed based on geographically defined zones in the port (ranging from 1.00 to 3.25 hours). The total calculated time is pro-rated to the nearest half hour. Crucially, escorting services are subject to a strict two-hour minimum per tug; if the actual escort time plus the zone running times equals less than two hours, it is automatically billed as 2.0 hours.
+[Hourly Rate]: The standard base rate is determined by the type of escort performed. A standard Escorting service is billed at $1,890 per hour, whereas a Tethered Escorting service (where the tug's line is attached to the vessel) is billed at a premium of $3,145 per hour.
+[0.75 Discount Multiplier]: The negotiated contract stipulates that all other services, which specifically includes escorting, receive a 25% discount off the standard port schedule of rates. Multiplying the total by 0.75 mathematically applies this contractual discount.
+[Number of Tugs]: Escort services and minimums are billed on a per tug basis, meaning the final calculation must be multiplied by the total number of tugboats utilized for the escort maneuver.
+
+TOTAL ESCORT TIME (Example 4.0hrs, Zone 10 to Zone 11)
+
+The calculation for the 4.00 billed hours for the Mary Turecamo in Invoice #1127941 is a combination of the actual time spent escorting the vessel and the geographic "zone running times" required for the tug to travel to and from the job locations.
+Here is the exact step-by-step breakdown based on the port's rate schedule and the invoice data:
+1. Actual Escort Duration The invoice states that the Mary Turecamo provided an "Escort Only" service from Con Hook (Constable Hook) to Howland Hook between 05:05 and 06:30.
+Actual Time: 1 hour and 25 minutes.
+2. Adding the Zone Running Times The contract dictates that for hourly services, running times must be charged "each way"—meaning travel time to the starting location and travel time from the finishing location. Because this escort covered a significant distance, the start and end points fall into two different geographic zones:
+Travel TO the Job (Zone 10): The escort started at "Con Hook" (Constable Hook). According to the zone descriptions, Constable Hook falls under Zone 10, which has a fixed one-way running time of 1.00 hour.
+Travel FROM the Job (Zone 11): The escort ended at Howland Hook. The area including Howland Hook (between the Bayonne Bridge and Goethals Bridge) is classified as Zone 11, which carries a fixed one-way running time of 1.50 hours.
+Total Running Time: 1.00 hr + 1.50 hrs = 2.50 hours.
+3. Pro-rating to the Final Billed Hours To get the final billed amount, you add the actual maneuver time to the total running time:
+1 hour 25 minutes (Actual) + 2 hours 30 minutes (Runtimes) = 3 hours and 55 minutes.
+The contract's terms and conditions state that hourly services must be "pro-rated to the nearest half (1/2) hour".
+Rounding 3 hours and 55 minutes to the nearest half hour results in exactly 4.00 Billed Hours, which matches the multiplier used on the Mary Turecamo line item perfectly.
+
+
+TOTAL ESCORT TIME (Why “Escort Only” service where other tugs provide both docking and escort services? How is “Escort Only” service calculated differently? What does it mean by the phrase “absorbed by the subsequent docking maneuver”?)
+
+
+When a tug provides an hourly service like escorting, Moran's rate schedule dictates that "running times... shall be charged to and from the place where Tug services are rendered" to cover the tug's travel time from its station and back.
+However, the phrase "absorbed by the subsequent docking maneuver" means that because the tug immediately performed another billable service for the same vessel, the return travel time was covered by the flat fee of that second service, preventing a double-charge to the buyer.
+Here is the detailed breakdown of why the "Travel FROM the Job" was $0 / 0 hours for the Newt Moran:
+1. The Transition from Hourly to Flat-Rate Billing
+The Escort (Hourly): The Newt Moran escorted the vessel ONE HONOLULU until 06:10. Escorting is an hourly service, which typically requires billing the zone running time for the trip back to the tug station.
+The Docking (Flat-Rate): At 06:10, instead of leaving the vessel and heading back to its station, the Newt Moran immediately assisted the ONE HONOLULU with "Docking at Howland Hook 3". Docking is billed as a flat-rate contractual fee ($2,150 for this contract year), not by the hour.
+2. Why the Return Trip is "Absorbed" Because docking is a flat-rate service, that single $2,150 fee inherently covers the entirety of the tug's involvement in that specific maneuver—including its eventual return trip back to its station once the docking is complete. If Moran Towing were to charge an hourly "return" running time for the escort, they would effectively be double-charging the buyer for the tug's time, as the tug was already on the clock for the flat-rate docking maneuver. Therefore, the return trip is "absorbed" into the flat fee of the docking.
+3. The Proof: Comparing Tugs on the Same Invoice You can see this billing logic applied perfectly when comparing the tugs on Invoice #1127941:
+Tugs that stayed to dock: Both the Newt Moran and the William E Moran escorted the vessel and then immediately performed the docking. Because they transitioned into a flat-rate job, they were only billed 2.50 hours for the escort (actual time + 1-way travel to the start of the job).
+The Tug that left: The Mary Turecamo is listed as performing an "Escort Only" service, meaning it did not stay to assist with the docking. Because it left the vessel and returned to its station, it was billed for running time "each way" (both to the job and from the job), resulting in a much higher total of 4.00 billed hours.
+
