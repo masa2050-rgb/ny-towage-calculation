@@ -260,7 +260,7 @@ function updateModel() {
                 runtimeHintEl.innerText = 'Full runtime billed: Escort Only tugs do not receive docking waivers.';
                 runtimeHintEl.style.color = 'var(--warning)';
             } else if (dualServiceCount > 0) {
-                runtimeHintEl.innerText = 'Outbound runtime waived because escort tugs transitioned to docking.';
+                runtimeHintEl.innerText = 'Runtime waived because escort tugs transitioned to docking.';
                 runtimeHintEl.style.color = 'var(--success)';
             } else {
                 runtimeHintEl.innerText = '';
