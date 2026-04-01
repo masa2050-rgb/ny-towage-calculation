@@ -1,0 +1,34 @@
+# Economic Modeling of Container Vessel Cost of Sales
+### A Dynamic Tug Towage Cost Simulation for the Port of New York and New Jersey
+**Research Analysis by Gemini Deep Research**
+
+---
+
+## 1. Executive Summary
+The accurate simulation of **Cost of Sales**—specifically Operating Expenses (OPEX) allocated to port calls—requires microscopic analysis of localized harbor economics. This report deconstructs the towage cost architecture governing **Ocean Network Express (ONE)** and **Moran Towing Corporation** within the Port of New York and New Jersey.
+
+---
+
+## 2. Macroeconomics: Port Omission vs. Speeding
+Fleet operators face a binary strategic decision when experiencing operational delays:
+
+| Strategy | Primary Benefits | Economic Penalties |
+| :--- | :--- | :--- |
+| **Port Omission** | Total elimination of port/terminal costs; significant fuel savings; schedule recovery. | Severe degradation of customer delivery reliability; potential contractual penalties. |
+| **Speeding** | Preservation of cargo commitments; maintains revenue per TEU and transparency. | Exponential spikes in fuel consumption (cubic function of speed); guaranteed harbor OPEX. |
+
+---
+
+## 3. Hydrodynamic & Regulatory Constraints
+In NY/NJ, asset allocation is strictly dictated by the **Harbor Safety Deep Draft Advisory** based on Length Overall (LOA), beam, draft, and thruster status.
+
+### Vessel Classification & Tug Mandates
+```mermaid
+graph TD
+    Vessel[Vessel Type] --> Standard[Standard: LOA < 997ft]
+    Vessel --> ULCV[ULCV: LOA 997ft - 1165ft]
+    Vessel --> SLCV[SLCV: LOA > 1165ft]
+
+    Standard --> S_Tugs[2 Tugs Standard]
+    ULCV --> U_3[3 Tugs Assigned]
+    SLCV --> SL_4[4 Tugs Assigned]
