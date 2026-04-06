@@ -100,7 +100,10 @@ function updateModel() {
     let actualTime = parseFloat(document.getElementById('adjTime').value) || 0;
 
     // Update UI Labels
-    document.getElementById('loa-val').innerText = loa.toLocaleString() + ' ft';
+// Update UI Labels
+    const loaMeters = (loa * 0.3048).toFixed(2);
+    document.getElementById('loa-ft-val').innerText = loa.toLocaleString() + ' ft';
+    document.getElementById('loa-m-val').innerText = loaMeters.toLocaleString() + ' m';
     document.getElementById('nrt-val').innerText = nrt.toLocaleString();
     document.getElementById('fuel-val').innerText = '$' + fuelPrice.toFixed(2);
     document.getElementById('year-rate-val').innerText = '$' + yearRate.toLocaleString();
@@ -260,7 +263,7 @@ function updateModel() {
                 runtimeHintEl.innerText = 'Full runtime billed: Escort Only tugs do not receive docking waivers.';
                 runtimeHintEl.style.color = 'var(--warning)';
             } else if (dualServiceCount > 0) {
-                runtimeHintEl.innerText = 'Runtime waived because escort tugs transitioned to docking.';
+                runtimeHintEl.innerText = 'Outbound runtime waived because escort tugs transitioned to docking.';
                 runtimeHintEl.style.color = 'var(--success)';
             } else {
                 runtimeHintEl.innerText = '';

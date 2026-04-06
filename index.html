@@ -21,19 +21,19 @@
         </p>
     </div>
 
-    <div class="container">
+<div class="container">
 
-        <div class="panel panel-left">
+        <div class="panel panel-far-left">
             <div class="section-title">Financial Output</div>
 
             <div class="output-header">
-                <div class="output-total-label">Total OPEX Invoice:</div>
+                <div class="output-total-label">Total Tug Invoice:</div>
                 <div class="output-total-val" id="totalCost">$0.00</div>
             </div>
 
             <div class="bar-chart" style="margin-top: 0; padding-top: 0; border-top: none;">
                 <div class="bar-row">
-                    <span class="bar-label">Base</span>
+                    <span class="bar-label">Docking</span>
                     <div class="bar-track">
                         <div class="bar-fill" id="bar-base" style="width:0%"></div>
                     </div>
@@ -66,11 +66,11 @@
             </div>
         </div>
 
-        <div class="panel panel-center">
-            <h2 class="section-title">Vessel Parameters</h2>
+        <div class="panel panel-center-left">
+            <h2 class="section-title">BASELINE</h2>
 
             <div class="input-group">
-                <div class="input-header"><span>Destination</span></div>
+                <div class="input-header"><span>Terminal</span></div>
                 <select id="destination" onchange="handleDestinationChange()">
                     <option value="bayonne" selected>Port Liberty Bayonne (USNYC01)</option>
                     <option value="newyork">Port Liberty New York (USNYC02)</option>
@@ -81,7 +81,7 @@
             </div>
 
             <div class="input-group">
-                <div class="input-header"><span>Maneuver Direction</span></div>
+                <div class="input-header"><span>Direction</span></div>
                 <select id="direction" onchange="updateModel()">
                     <option value="inbound" selected>Inbound (Arrival / Docking)</option>
                     <option value="outbound">Outbound (Departure / Undocking)</option>
@@ -90,14 +90,14 @@
 
             <div class="slider-group">
                 <div class="slider-header">
-                    <span class="slider-title">Length Overall (LOA ft)</span>
-                    <span class="slider-value" id="loa-val">1,200</span>
+                    <span class="slider-title">Length Overall (LOA)</span>
+                    <span class="slider-value"><span id="loa-ft-val">1,200 ft</span> / <span id="loa-m-val">365.76 m</span></span>
                 </div>
                 <input type="range" id="loa" min="500" max="1400" step="1" value="1200" oninput="updateModel()">
                 <div class="slider-ticks">
                     <span style="left: 0%">500'</span>
                     <span style="left: 55.2%">997' (ULCV)</span>
-                    <span style="left: 73.8%">1,165' (SLCV)</span>
+                    <span style="left: 77%">1,165' (SLCV)</span>
                     <span style="left: 100%">1,400'</span>
                 </div>
             </div>
@@ -110,16 +110,18 @@
                 <input type="range" id="nrt" min="0" max="150000" step="1000" value="50000" oninput="updateModel()">
                 <div class="slider-ticks">
                     <span style="left: 0%">0</span>
-                    <span style="left: 26.66%">40k (Premium Threshold)</span>
+                    <span style="left: 35%">40k (Fee Threshold)</span>
                     <span style="left: 100%">150k</span>
                 </div>
             </div>
+        </div>
 
-            <div class="section-title" style="margin-top:2.5rem;">Tug & Escort Parameters</div>
+        <div class="panel panel-center-right">
+            <h2 class="section-title">RATES</h2>
 
             <div class="slider-group">
                 <div class="slider-header">
-                    <span class="slider-title">Docking/Undocking Rate ($)</span>
+                    <span class="slider-title">Docking Rate ($/tug)</span>
                     <span class="slider-value" id="year-rate-val">$2,150</span>
                 </div>
                 <input type="range" id="yearRate" min="1000" max="4000" step="25" value="2150" oninput="updateModel()">
@@ -145,7 +147,7 @@
 
             <div class="slider-group">
                 <div class="slider-header">
-                    <span class="slider-title">Market Fuel Price (NY Harbor ULSD Index)</span>
+                    <span class="slider-title">Market Fuel Price ($/gallon)</span>
                     <span class="slider-value" id="fuel-val">$2.69</span>
                 </div>
                 <input type="range" id="fuel" min="2.00" max="5.00" step="0.01" value="2.69" oninput="updateModel()">
@@ -165,17 +167,17 @@
             </div>
         </div>
 
-        <div class="panel panel-right">
-            <div class="section-title">System Parameters Driven</div>
+        <div class="panel panel-far-right">
+            <div class="section-title">Units Output</div>
 
             <div class="sys-param-row"
                 style="margin-top: 0; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--accent);">
-                <span>Docking & Undocking Invoice Items</span>
+                <span>Docking Invoice Items</span>
             </div>
             <div class="sys-param-row">
                 <span
-                    title="Matches the number of times the 'Docking/Undocking' base rate will appear across all tugs on the invoice.">"Docking
-                    / Undocking" Line Items</span>
+                    title="Matches the number of times the 'Docking' base rate will appear across all tugs on the invoice.">"Docking
+                    " Line Items</span>
                 <span class="sys-param-val" id="dockingTugs">0 Units</span>
             </div>
 
@@ -184,7 +186,7 @@
                 <span>Escorting Invoice Items</span>
             </div>
             <div class="sys-param-row">
-                <span title="Tugs providing both escorting and docking/undocking services.">Escort + Docking
+                <span title="Tugs providing both escorting and docking services.">Escort + Docking
                     Services</span>
                 <span class="sys-param-val" id="escortDockTugs">0 Units</span>
             </div>
@@ -199,7 +201,7 @@
                 <span class="sys-param-val" id="billedHours">2.0 hrs</span>
             </div>
             <div class="sys-param-row" style="padding-left: 1rem; border-left: none;">
-                <span>↳ Actual Maneuver Time</span>
+                <span>↳ Actual Escort Time</span>
                 <span class="sys-param-val" id="escortTime">0.0 hrs</span>
             </div>
             <div class="sys-param-row" style="padding-left: 1rem; border-left: none;">
@@ -208,10 +210,10 @@
             </div>
 
             <div class="section-title" style="margin-top: 2.5rem; border-top: 1px solid #f0f0f0; padding-top: 1.5rem;">
-                Adjustment Panel</div>
+                Variables</div>
 
             <div class="sys-param-row" style="align-items: center;">
-                <span title="Manually adjust the calculated amount of Docking Line Items">Adj: "Docking / Undocking"
+                <span title="Manually adjust the calculated amount of Docking Line Items">Adj: "Docking"
                     Line Items</span>
                 <div class="stepper">
                     <button type="button" class="stepper-btn" onclick="stepValue('adjDocking', -1)">&minus;</button>
@@ -242,7 +244,7 @@
             </div>
 
             <div class="sys-param-row" style="align-items: center;">
-                <span title="Input the actual escort/maneuver time to calculate billed hours">Actual Maneuver Time
+                <span title="Input the actual escort time to calculate billed hours">Actual Escort Time
                     (hrs)</span>
                 <div class="stepper">
                     <button type="button" class="stepper-btn" onclick="stepTimeValue(-0.25)">&minus;</button>
@@ -258,14 +260,14 @@
         <h2 class="section-label">Model Formulas & Assumptions</h2>
         <div class="assumptions-grid">
             <div class="assumption-block">
-                <h3>Base Docking/Undocking</h3>
-                <p><strong>Formula:</strong> Base Cost = Docking Rate × "Docking/Undocking" Line Items</p>
+                <h3>Docking</h3>
+                <p><strong>Formula:</strong> Base Cost = Docking Rate × "Docking" Line Items</p>
                 <p><strong>Assumption:</strong> Base tug dispatch is determined by Length Overall (LOA). 2 tugs for
                     &lt;997', 3 tugs for ≥997', and 4 tugs for ≥1165'.</p>
             </div>
             <div class="assumption-block">
-                <h3>Vessel Size Premium</h3>
-                <p><strong>Formula:</strong> Size Cost = If NRT > 40,000, add $1,400 × "Docking/Undocking" Line Items
+                <h3>+40K NRT Fee</h3>
+                <p><strong>Formula:</strong> Size Cost = If NRT > 40,000, add $1,400 × "Docking" Line Items
                 </p>
                 <p><strong>Assumption:</strong> This is an additional flat premium added per docking line item when the
                     Net Register Tonnage exceeds the threshold.</p>
@@ -277,15 +279,15 @@
                     (rounded up) adds a $15 surcharge.</p>
             </div>
             <div class="assumption-block">
-                <h3>Escort Services</h3>
-                <p><strong>Formula:</strong> Escort Cost = Escort Rate × Billed Hours × Total Escorting Tugs</p>
-                <p><strong>Assumption:</strong> Billed Hours = Max(2.0, Round_to_Half_Hour(Actual Maneuver Time + Zone
-                    Transit Time)). Per harbor regulations, vessels 997 feet LOA and larger require mandatory tug
-                    escorts to safely transit restricted waterways like the Kill Van Kull, whereas smaller vessels do
+                <h3>Escort</h3>
+                <p><strong>Formula:</strong> Escort Cost = Escort Rate × Billed Hours (Actual Escort Time + Runtime) × Total Escorting Tugs</p>
+                <p><strong>Assumption:</strong> Billed Hours is rounded up to the nearest 0.5hrs increment and is subject to a 2.0-hour minimum billing per tug.</p>
+                <p>Per harbor regulations, vessels 997 feet LOA and larger require mandatory tug
+                    escorts to safely transit restricted waterways like the Kill Van Kull (Zone 11), whereas smaller vessels do
                     not.</p>
             </div>
             <div class="assumption-block">
-                <h3>Transit & Routing Logic</h3>
+                <h3>"Escort Only" & Runtime-waiver</h3>
                 <p><strong>Formula:</strong> If Direction = Inbound, Escort+Docking Zone Time = Runtime ÷ 2. Escort Only
                     Zone Time = Full Runtime.</p>
                 <p><strong>Assumption:</strong> The outbound runtime leg is waived upon arrival ONLY for tugs that
