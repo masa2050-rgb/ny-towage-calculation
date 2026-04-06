@@ -168,7 +168,7 @@
         </div>
 
         <div class="panel panel-far-right">
-            <div class="section-title">Units Output</div>
+            <div class="section-title">Unit Output</div>
 
             <div class="sys-param-row"
                 style="margin-top: 0; color: var(--accent); font-weight: 700; border-bottom: 2px solid var(--accent);">
@@ -256,8 +256,81 @@
         </div>
     </div>
 
+    <section class="methodology" style="margin-bottom: 2rem;">
+        <h2 class="section-label">Baseline Assumptions</h2>
+        <div class="assumptions-grid">
+            <div class="assumption-block">
+                <h3>Terminal</h3>
+                <p><strong>Drives:</strong> Actual Escort Time and Runtime</p>
+                <p><strong>Assumption:</strong></p>
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                    <li><strong>Port Liberty Bayonne:</strong> Sets Actual Escort Time to 0.50 hrs and base Zone Runtime to 2.50 hrs (reduces to 1.25 hrs if waived).</li>
+                    <li><strong>Port Liberty New York:</strong> Sets Actual Escort Time to 1.00 hr, base Zone Runtime to 2.50 hrs, and triggers strict KVK protocols (shifts 1 dual-service tug to an "Escort Only" tug). Does <em>not</em> waive runtime.</li>
+                    <li><strong>APM Elizabeth:</strong> Sets Actual Escort Time to 1.00 hr, base Zone Runtime to 2.50 hrs (reduces to 1.25 hrs if waived), and triggers strict KVK protocols.</li>
+                </ul>
+            </div>
+            <div class="assumption-block">
+                <h3>Direction</h3>
+                <p><strong>Drives:</strong> Runtime-waiver</p>
+                <p><strong>Assumption:</strong></p>
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                    <li><strong>Inbound (Arrival):</strong> Qualifies for the runtime waiver (terminal dependent). Halves the base Zone Runtime (e.g., 2.50 hrs &rarr; 1.25 hrs) for Escort+Docking tugs because the return leg is waived once they transition to docking.</li>
+                    <li><strong>Outbound (Departure):</strong> No waiver applied. Escorting tugs are billed the full round-trip Zone Time (e.g., 2.50 hrs).</li>
+                </ul>
+            </div>
+            <div class="assumption-block">
+                <h3>Length Overall (LOA)</h3>
+                <p><strong>Drives:</strong> Docking and Escort Units</p>
+                <p><strong>Assumption:</strong></p>
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                    <li><strong>&lt; 997 ft (Standard):</strong> Assigns 2 Docking tugs. Escort services are not mandatory (0 Escort units).</li>
+                    <li><strong>997 ft &ndash; 1164 ft (ULCV):</strong> Assigns 3 Docking tugs and triggers mandatory escorting (3 Escort units).</li>
+                    <li><strong>&ge; 1165 ft (SLCV/MLCV):</strong> Assigns 4 Docking tugs and 4 mandatory Escort units.</li>
+                </ul>
+            </div>
+            <div class="assumption-block">
+                <h3>Net Register Tonnage (NRT)</h3>
+                <p><strong>Drives:</strong> +40k NRT Fee</p>
+                <p><strong>Assumption:</strong></p>
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                    <li><strong>&le; 40,000 NRT:</strong> $0 size premium.</li>
+                    <li><strong>&gt; 40,000 NRT:</strong> Adds exactly $1,400 to the invoice for <em>every</em> "Docking" line item assigned to the job.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="methodology" style="margin-bottom: 2rem;">
+        <h2 class="section-label">Variables Assumptions</h2>
+        <div class="assumptions-grid">
+            <div class="assumption-block">
+                <h3>Adj: "Docking" Line Items</h3>
+                <p><strong>When to adjust:</strong></p>
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                    <li><strong>Inoperable Bow Thruster:</strong> The Port Authority of NY & NJ guidelines dictate adding one (+1) additional docking tug for vessels without an operable bow thruster.</li>
+                    <li><strong>Adverse Weather / Ice Conditions:</strong> Safety guidelines require the assignment of one (+1) extra docking tug during harsh weather or ice conditions.</li>
+                </ul>
+            </div>
+            <div class="assumption-block">
+                <h3>Adj: Escort + Docking & Adj: "Escort Only" Services</h3>
+                <p><strong>When to adjust:</strong></p>
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                    <li><strong>PLB (USNYC01) Runtime Exceptions:</strong> There are operational exceptions where Moran NY utilizes "Escort Only" tugs instead of combined "Escort + Docking" services. You must manually decrease the dual service variable and increase the "Escort Only" variable to reflect this.</li>
+                    <li><strong>Small Vessels in the Kill Van Kull Transit:</strong> Per harbor regulations, vessels &ge; 997 ft require mandatory tug escorts. While vessels &lt; 997 ft (Standard) default to 0 escort units, Moran NY uses "Escort Only" tugs when these smaller vessels transit restricted waterways like the Kill Van Kull to reach APM Elizabeth or Port Liberty New York.</li>
+                </ul>
+            </div>
+            <div class="assumption-block">
+                <h3>Actual Escort Time (hrs)</h3>
+                <p><strong>When to adjust:</strong></p>
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                    <li><strong>Operational Delays:</strong> Manually increase or decrease this value over the baseline assumptions to account for real-world variables such as heavy waterway traffic and weather delays.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
     <section class="methodology">
-        <h2 class="section-label">Model Formulas & Assumptions</h2>
+        <h2 class="section-label">Billing Formulas</h2>
         <div class="assumptions-grid">
             <div class="assumption-block">
                 <h3>Docking</h3>
@@ -285,13 +358,6 @@
                 <p>Per harbor regulations, vessels 997 feet LOA and larger require mandatory tug
                     escorts to safely transit restricted waterways like the Kill Van Kull (Zone 11), whereas smaller vessels do
                     not.</p>
-            </div>
-            <div class="assumption-block">
-                <h3>"Escort Only" & Runtime-waiver</h3>
-                <p><strong>Formula:</strong> If Direction = Inbound, Escort+Docking Zone Time = Runtime ÷ 2. Escort Only
-                    Zone Time = Full Runtime.</p>
-                <p><strong>Assumption:</strong> The outbound runtime leg is waived upon arrival ONLY for tugs that
-                    transition to docking. "Escort Only" tugs bill the full two-way transit runtime.</p>
             </div>
         </div>
     </section>
