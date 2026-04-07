@@ -1,13 +1,7 @@
 const formatMoney = (amount) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
 
 const CURRENT_MARKET_FUEL = 4.73;
-const CHART_MAX = 20000;
 
-// ==========================================
-// VESSEL DATA (Populate from your CSV)
-// Format: [LOA_in_feet, GRT, NRT]
-// *IMPORTANT: Ensure this list is sorted from lowest LOA to highest LOA*
-// ==========================================
 const vesselData = [
     [500, 10000, 5000],
     [800, 35000, 15000],
@@ -16,13 +10,18 @@ const vesselData = [
     [1400, 160000, 75000]
 ];
 
+// Moving destination rules to the top so our new routing handler can access them
+const destinationRules = {
+    bayonne: { runtime: 2.50, zones: '8 & 9', isKVK: false, defaultPolicy: 'waive', route: 'Newark Bay → Bayonne' },
+    newyork: { runtime: 2.50, zones: '10 & 11', isKVK: true, defaultPolicy: 'standard', route: 'The Narrows → Kill Van Kull' },
+    elizabeth: { runtime: 2.50, zones: '10 & 11', isKVK: true, defaultPolicy: 'waive', route: 'The Narrows → Kill Van Kull' },
+    redhook: { runtime: 2.50, zones: '9 & 1/2', isKVK: false, defaultPolicy: 'waive', route: 'Upper New York Bay → Red Hook' },
+    none: { runtime: 0.0, zones: 'N/A', isKVK: false, defaultPolicy: 'waive', route: 'N/A' }
+};
+
 function getTonnageFromLOA(targetLoa) {
-    if (targetLoa <= vesselData[0][0]) {
-        return { grt: vesselData[0][1], nrt: vesselData[0][2] };
-    }
-    if (targetLoa >= vesselData[vesselData.length - 1][0]) {
-        return { grt: vesselData[vesselData.length - 1][1], nrt: vesselData[vesselData.length - 1][2] };
-    }
+    if (targetLoa <= vesselData[0][0]) return { grt: vesselData[0][1], nrt: vesselData[0][2] };
+    if (targetLoa >= vesselData[vesselData.length - 1][0]) return { grt: vesselData[vesselData.length - 1][1], nrt: vesselData[vesselData.length - 1][2] };
 
     for (let i = 0; i < vesselData.length - 1; i++) {
         const low = vesselData[i];
@@ -30,12 +29,9 @@ function getTonnageFromLOA(targetLoa) {
 
         if (targetLoa >= low[0] && targetLoa <= high[0]) {
             const ratio = (targetLoa - low[0]) / (high[0] - low[0]);
-            const interpGRT = low[1] + ratio * (high[1] - low[1]);
-            const interpNRT = low[2] + ratio * (high[2] - low[2]);
-
             return {
-                grt: Math.round(interpGRT),
-                nrt: Math.round(interpNRT)
+                grt: Math.round(low[1] + ratio * (high[1] - low[1])),
+                nrt: Math.round(low[2] + ratio * (high[2] - low[2]))
             };
         }
     }
@@ -46,48 +42,52 @@ function getCurrentFuelPrice() {
     return CURRENT_MARKET_FUEL;
 }
 
-function handleDestinationChange() {
-    const dest = document.getElementById('destination').value;
-    const timeEl = document.getElementById('adjTime');
+// Centralized handler for when routing inputs change
+function handleRoutingChange(isDestinationChange = false) {
+    const destValue = document.getElementById('destination').value;
+    const direction = document.getElementById('direction').value;
+    const routeEntry = destinationRules[destValue] || destinationRules.none;
 
-    if (dest === 'elizabeth') {
-        timeEl.value = 1.0;
-    } else if (dest === 'newyork') {
-        timeEl.value = 1.0;
-    } else if (dest === 'bayonne') {
-        timeEl.value = 0.5; // Default for Bayonne is 0.50
-    } else if (dest === 'redhook' || dest === 'none') {
-        timeEl.value = 0.75;
-    } else {
-        timeEl.value = 0.75;
+    // 1. Update Actual Times ONLY if the Terminal changed
+    if (isDestinationChange) {
+        let defaultTime = 0.75;
+        if (destValue === 'elizabeth' || destValue === 'newyork') defaultTime = 1.0;
+        else if (destValue === 'bayonne') defaultTime = 0.5;
+        
+        if (document.getElementById('adjTime')) document.getElementById('adjTime').value = defaultTime;
+        if (document.getElementById('adjTimeOnly')) document.getElementById('adjTimeOnly').value = defaultTime;
     }
+
+    // 2. Update Baseline Runtimes based on Terminal & Direction logic
+    const destinationRuntime = routeEntry.runtime;
+    const runtimePolicy = routeEntry.defaultPolicy;
+
+    let effectiveRuntimeDual = destinationRuntime;
+    let effectiveRuntimeOnly = destinationRuntime;
+
+    if (direction === 'inbound') {
+        effectiveRuntimeDual = (runtimePolicy === 'waive') ? (destinationRuntime / 2) : destinationRuntime;
+    }
+
+    if (document.getElementById('adjRuntime')) document.getElementById('adjRuntime').value = effectiveRuntimeDual;
+    if (document.getElementById('adjRuntimeOnly')) document.getElementById('adjRuntimeOnly').value = effectiveRuntimeOnly;
+
     updateModel();
 }
 
 function updateModel() {
-    // 1. Get Core Inputs
     const loa = parseFloat(document.getElementById('loa').value);
     const nrt = parseFloat(document.getElementById('nrt').value);
     const yearRate = parseFloat(document.getElementById('yearRate').value);
     const fuelPrice = parseFloat(document.getElementById('fuel').value);
     const direction = document.getElementById('direction').value;
-
-    // Determine Routing / Billing 
     const destValue = document.getElementById('destination').value;
-    const destinationRules = {
-        bayonne: { runtime: 2.50, zones: '8 & 9', isKVK: false, defaultPolicy: 'waive', route: 'Newark Bay → Bayonne' },
-        newyork: { runtime: 2.50, zones: '10 & 11', isKVK: true, defaultPolicy: 'standard', route: 'The Narrows → Kill Van Kull' },
-        elizabeth: { runtime: 2.50, zones: '10 & 11', isKVK: true, defaultPolicy: 'waive', route: 'The Narrows → Kill Van Kull' },
-        redhook: { runtime: 2.50, zones: '9 & 1/2', isKVK: false, defaultPolicy: 'waive', route: 'Upper New York Bay → Red Hook' },
-        none: { runtime: 0.0, zones: 'N/A', isKVK: false, defaultPolicy: 'waive', route: 'N/A' }
-    };
-
-    const routeEntry = destinationRules[destValue] || { runtime: 0, zones: 'N/A', isKVK: false, defaultPolicy: 'waive', route: 'N/A' };
+    
+    const routeEntry = destinationRules[destValue] || destinationRules.none;
     const destinationRuntime = routeEntry.runtime;
     const isKVK = routeEntry.isKVK;
     let runtimePolicy = routeEntry.defaultPolicy;
 
-    // Flip the path wording based on inbound vs outbound direction
     let displayRoute = routeEntry.route;
     if (direction === 'outbound' && displayRoute.includes('→')) {
         displayRoute = displayRoute.split(' → ').reverse().join(' → ');
@@ -96,11 +96,13 @@ function updateModel() {
 
     let finalEscortRate = parseFloat(document.getElementById('escortRate').value);
 
-    // Fetch time from the Adjustment Panel
+    // Fetch times & runtimes directly from the user-facing inputs
     let actualTime = parseFloat(document.getElementById('adjTime').value) || 0;
+    let actualTimeOnly = parseFloat(document.getElementById('adjTimeOnly')?.value) || 0;
+    let effectiveRuntimeDual = parseFloat(document.getElementById('adjRuntime')?.value) || 0;
+    let effectiveRuntimeOnly = parseFloat(document.getElementById('adjRuntimeOnly')?.value) || 0;
 
     // Update UI Labels
-// Update UI Labels
     const loaMeters = (loa * 0.3048).toFixed(2);
     document.getElementById('loa-ft-val').innerText = loa.toLocaleString() + ' ft';
     document.getElementById('loa-m-val').innerText = loaMeters.toLocaleString() + ' m';
@@ -109,145 +111,101 @@ function updateModel() {
     document.getElementById('year-rate-val').innerText = '$' + yearRate.toLocaleString();
     document.getElementById('escort-rate-val').innerText = formatMoney(finalEscortRate) + '/hr';
 
-    // Update stepper label for maneuver time
-    const adjTimeValEl = document.getElementById('adjTime-display');
-    if (adjTimeValEl) {
-        adjTimeValEl.innerText = actualTime.toFixed(2);
-    }
+    // Update time stepper displays
+    if (document.getElementById('adjTime-display')) document.getElementById('adjTime-display').innerText = actualTime.toFixed(2);
+    if (document.getElementById('adjTimeOnly-display')) document.getElementById('adjTimeOnly-display').innerText = actualTimeOnly.toFixed(2);
+    if (document.getElementById('adjRuntime-display')) document.getElementById('adjRuntime-display').innerText = effectiveRuntimeDual.toFixed(2);
+    if (document.getElementById('adjRuntimeOnly-display')) document.getElementById('adjRuntimeOnly-display').innerText = effectiveRuntimeOnly.toFixed(2);
 
-    // 3. Vessel Classification & Base Service Logic
     let vClass = "Standard";
     let baseIdealServices = 2;
 
     if (loa >= 1165) {
         vClass = "SLCV/MLCV";
         baseIdealServices = 4;
-    } else if (loa >= 997) {
+    } else if (loa >= 850) {
         vClass = "ULCV";
         baseIdealServices = 3;
     }
 
     let baseDocking = Math.min(5, baseIdealServices);
-    // By default, Standard vessels don't get escort tugs unless manually adjusted.
     let baseEscort = (vClass === "Standard") ? 0 : baseDocking;
 
-    // Apply "Escort-Only" anomaly strictly for KVK transits
-    if (isKVK && vClass !== "Standard") {
-        baseDocking = baseEscort - 1;
-    }
+    if (isKVK && vClass !== "Standard") baseDocking = baseEscort - 1;
+    if (finalEscortRate === 0) baseEscort = 0;
 
-    if (finalEscortRate === 0) {
-        baseEscort = 0;
-    }
-
-    // Determine the baseline physical tug breakdown before manual adjustments
     let baseDualService = Math.min(baseDocking, baseEscort);
     let baseEscortOnly = Math.max(0, baseEscort - baseDualService);
     let baseDockingOnly = Math.max(0, baseDocking - baseDualService);
 
-    // --- APPLY ADJUSTMENT PANEL MODIFIERS ---
     let adjDocking = parseInt(document.getElementById('adjDocking').value) || 0;
     let adjEscortDock = parseInt(document.getElementById('adjEscortDock').value) || 0;
     let adjEscortOnly = parseInt(document.getElementById('adjEscortOnly').value) || 0;
 
-    // Apply adjustments directly to the physical tug buckets.
-    // If a user clicks minus below 0, it forces a snap-back on the UI.
-    let dockingOnlyCount = baseDockingOnly + adjDocking;
-    if (dockingOnlyCount < 0) {
-        dockingOnlyCount = 0;
-        let forcedAdj = 0 - baseDockingOnly;
-        document.getElementById('adjDocking').value = forcedAdj;
-        document.getElementById('adjDocking-display').innerText = forcedAdj;
-    }
+    let dockingOnlyCount = Math.max(0, baseDockingOnly + adjDocking);
+    if (baseDockingOnly + adjDocking < 0) { document.getElementById('adjDocking').value = -baseDockingOnly; document.getElementById('adjDocking-display').innerText = -baseDockingOnly; }
+    
+    let dualServiceCount = Math.max(0, baseDualService + adjEscortDock);
+    if (baseDualService + adjEscortDock < 0) { document.getElementById('adjEscortDock').value = -baseDualService; document.getElementById('adjEscortDock-display').innerText = -baseDualService; }
+    
+    let escortOnlyCount = Math.max(0, baseEscortOnly + adjEscortOnly);
+    if (baseEscortOnly + adjEscortOnly < 0) { document.getElementById('adjEscortOnly').value = -baseEscortOnly; document.getElementById('adjEscortOnly-display').innerText = -baseEscortOnly; }
 
-    let dualServiceCount = baseDualService + adjEscortDock;
-    if (dualServiceCount < 0) {
-        dualServiceCount = 0;
-        let forcedAdj = 0 - baseDualService;
-        document.getElementById('adjEscortDock').value = forcedAdj;
-        document.getElementById('adjEscortDock-display').innerText = forcedAdj;
-    }
-
-    let escortOnlyCount = baseEscortOnly + adjEscortOnly;
-    if (escortOnlyCount < 0) {
-        escortOnlyCount = 0;
-        let forcedAdj = 0 - baseEscortOnly;
-        document.getElementById('adjEscortOnly').value = forcedAdj;
-        document.getElementById('adjEscortOnly-display').innerText = forcedAdj;
-    }
-
-    // Reconstruct the invoice line items from the physical tugs
-    let dockingServices = dualServiceCount + dockingOnlyCount;
-    let escortServices = dualServiceCount + escortOnlyCount;
-
-    // Total Physical Tugs represent the sum of all three distinct buckets
+    // --- APPLY MAXIMUM 5 TUGS LIMIT ---
     let maxPhysicalTugs = dockingOnlyCount + dualServiceCount + escortOnlyCount;
+    if (maxPhysicalTugs > 5) {
+        let overflow = maxPhysicalTugs - 5;
+        // Prioritize rejecting the most recent user additions if it pushes total over 5
+        if (adjEscortOnly > 0 && overflow > 0) {
+            let reduction = Math.min(adjEscortOnly, overflow);
+            adjEscortOnly -= reduction; escortOnlyCount -= reduction; overflow -= reduction;
+            document.getElementById('adjEscortOnly').value = adjEscortOnly;
+            document.getElementById('adjEscortOnly-display').innerText = adjEscortOnly;
+        }
+        if (adjEscortDock > 0 && overflow > 0) {
+            let reduction = Math.min(adjEscortDock, overflow);
+            adjEscortDock -= reduction; dualServiceCount -= reduction; overflow -= reduction;
+            document.getElementById('adjEscortDock').value = adjEscortDock;
+            document.getElementById('adjEscortDock-display').innerText = adjEscortDock;
+        }
+        if (adjDocking > 0 && overflow > 0) {
+            let reduction = Math.min(adjDocking, overflow);
+            adjDocking -= reduction; dockingOnlyCount -= reduction; overflow -= reduction;
+            document.getElementById('adjDocking').value = adjDocking;
+            document.getElementById('adjDocking-display').innerText = adjDocking;
+        }
+        maxPhysicalTugs = 5;
+    }
 
-    // 4. Base Cost Calculation (Priced per Docking Service)
+    let dockingServices = dualServiceCount + dockingOnlyCount;
+
+    // --- Core Cost Math Calculations ---
     const baseCost = dockingServices * yearRate;
+    
+    const sizeCostPerTug = nrt > 40000 ? 1400 : 0;
+    const sizeCost = dockingServices * sizeCostPerTug;
 
-    // 5. Vessel Size Premium Calculation
-    const sizeCost = nrt > 40000 ? (dockingServices * 1400) : 0;
-
-    // 6. Fuel Surcharge Calculation
     let fuelCost = 0;
     let fuelRatePerTug = 0;
     if (fuelPrice > 2.00) {
-        // Calculate increments by rounding UP (Math.ceil) for any fraction of $0.10
         const increments = Math.ceil(Math.round((fuelPrice - 2.00) * 100) / 10);
         fuelRatePerTug = increments * 15;
-        // Fuel surcharge applies to all physically dispatched tugs
         fuelCost = maxPhysicalTugs * fuelRatePerTug;
     }
 
-    // 7. Escort Cost Calculation & Runtime Logic Handling
     let escortCost = 0;
-
-    let effectiveRuntimeDual = 0;
-    let effectiveRuntimeOnly = destinationRuntime; // Escort Only tugs always bill full round-trip runtime
-
-    if (direction === 'outbound') {
-        // Outbound transit is not waived, they bill the full standard runtime 
-        effectiveRuntimeDual = destinationRuntime;
-    } else {
-        effectiveRuntimeDual = (runtimePolicy === 'waive') ? (destinationRuntime / 2) : destinationRuntime;
-    }
-
-    // Calculate time for Escort + Docking tugs
     let rawTimeDual = actualTime + effectiveRuntimeDual;
     let billedTimeDual = Math.max(2.0, Math.round(rawTimeDual * 2) / 2);
+    let escortDualCostPerTug = billedTimeDual * finalEscortRate;
 
-    // Calculate time for Escort Only tugs
-    let rawTimeOnly = actualTime + effectiveRuntimeOnly;
+    let rawTimeOnly = actualTimeOnly + effectiveRuntimeOnly;
     let billedTimeOnly = Math.max(2.0, Math.round(rawTimeOnly * 2) / 2);
+    let escortOnlyCostPerTug = billedTimeOnly * finalEscortRate;
 
-    // Add up the totals
-    if (dualServiceCount > 0) {
-        escortCost += dualServiceCount * billedTimeDual * finalEscortRate;
-    }
-    if (escortOnlyCount > 0) {
-        escortCost += escortOnlyCount * billedTimeOnly * finalEscortRate;
-    }
+    if (dualServiceCount > 0) escortCost += dualServiceCount * escortDualCostPerTug;
+    if (escortOnlyCount > 0) escortCost += escortOnlyCount * escortOnlyCostPerTug;
 
-    // 8. Update System Parameters UI (Services)
-    document.getElementById('dockingTugs').innerText = dockingServices + ' Units';
-    document.getElementById('escortDockTugs').innerText = dualServiceCount + ' Units';
-    document.getElementById('escortOnlyTugs').innerText = escortOnlyCount + ' Units';
-
-    document.getElementById('escortTime').innerText = actualTime.toFixed(2) + ' hrs';
-
-    // Update Dynamic Readouts based on split logic
-    if (dualServiceCount > 0 && escortOnlyCount > 0) {
-        document.getElementById('zoneRunningTime').innerText = `${effectiveRuntimeDual.toFixed(2)}h (E+D) | ${effectiveRuntimeOnly.toFixed(2)}h (EO)`;
-        document.getElementById('billedHours').innerText = `${billedTimeDual.toFixed(1)}h (E+D) | ${billedTimeOnly.toFixed(1)}h (EO)`;
-    } else if (escortOnlyCount > 0) {
-        document.getElementById('zoneRunningTime').innerText = `${effectiveRuntimeOnly.toFixed(2)} hrs`;
-        document.getElementById('billedHours').innerText = `${billedTimeOnly.toFixed(1)} hrs`;
-    } else {
-        document.getElementById('zoneRunningTime').innerText = `${effectiveRuntimeDual.toFixed(2)} hrs`;
-        document.getElementById('billedHours').innerText = `${billedTimeDual.toFixed(1)} hrs`;
-    }
-
+    // --- Runtime Hint Handling ---
     const runtimeHintEl = document.getElementById('runtimeHint');
     if (runtimeHintEl) {
         if (destinationRuntime === 0) {
@@ -263,7 +221,7 @@ function updateModel() {
                 runtimeHintEl.innerText = 'Full runtime billed: Escort Only tugs do not receive docking waivers.';
                 runtimeHintEl.style.color = 'var(--warning)';
             } else if (dualServiceCount > 0) {
-                runtimeHintEl.innerText = 'Outbound runtime waived because escort tugs transitioned to docking.';
+                runtimeHintEl.innerText = 'Runtime waived because escort tugs transitioned to docking; Min. 2.0 hrs.';
                 runtimeHintEl.style.color = 'var(--success)';
             } else {
                 runtimeHintEl.innerText = '';
@@ -273,77 +231,110 @@ function updateModel() {
         }
     }
 
-    // 9. Total Generation
-    const total = baseCost + sizeCost + fuelCost + escortCost;
-
     // --- Update Total Invoice ---
-    document.getElementById('totalCost').innerText = formatMoney(total);
+    const total = baseCost + sizeCost + fuelCost + escortCost;
+    if (document.getElementById('totalCost')) document.getElementById('totalCost').innerText = formatMoney(total);
 
-    // Update Bar Chart with Fixed Bounds and Absolute Money Value
-    const setBar = (id, val) => {
-        const pct = Math.min((val / CHART_MAX) * 100, 100);
-        const barEl = document.getElementById('bar-' + id);
-        const valEl = document.getElementById('bar-val-' + id);
 
-        if (barEl && valEl) {
-            barEl.style.width = pct + '%';
-            valEl.innerText = val > 0 ? formatMoney(val) : '$0';
-        }
-    };
-
-    setBar('base', baseCost);
-    setBar('size', sizeCost);
-    setBar('fuel', fuelCost);
-    setBar('escort', escortCost);
+    // --- Generate Per-Tug Breakdown Cards ---
+    let tugBreakdownHTML = '';
+    
+    let tugs = [];
+    
+    // Populate Dual Service Tugs
+    for(let i=0; i<dualServiceCount; i++) {
+        tugs.push({
+            type: 'Escort + Docking', 
+            dockingCost: yearRate, dockingUnit: '1 Unit',
+            nrtCost: sizeCostPerTug, nrtUnit: sizeCostPerTug > 0 ? '1 Unit' : '0 Units',
+            fuelCost: fuelRatePerTug, fuelUnit: fuelRatePerTug > 0 ? '1 Unit' : '0 Units',
+            escortCost: escortDualCostPerTug, escortUnit: billedTimeDual.toFixed(1) + ' hrs'
+        });
+    }
+    
+    // Populate Docking Only Tugs
+    for(let i=0; i<dockingOnlyCount; i++) {
+        tugs.push({
+            type: 'Docking Only', 
+            dockingCost: yearRate, dockingUnit: '1 Unit',
+            nrtCost: sizeCostPerTug, nrtUnit: sizeCostPerTug > 0 ? '1 Unit' : '0 Units',
+            fuelCost: fuelRatePerTug, fuelUnit: fuelRatePerTug > 0 ? '1 Unit' : '0 Units',
+            escortCost: 0, escortUnit: '0.0 hrs'
+        });
+    }
+    
+    // Populate Escort Only Tugs
+    for(let i=0; i<escortOnlyCount; i++) {
+        tugs.push({
+            type: 'Escort Only', 
+            dockingCost: 0, dockingUnit: '0 Units',
+            nrtCost: 0, nrtUnit: '0 Units',
+            fuelCost: fuelRatePerTug, fuelUnit: fuelRatePerTug > 0 ? '1 Unit' : '0 Units',
+            escortCost: escortOnlyCostPerTug, escortUnit: billedTimeOnly.toFixed(1) + ' hrs'
+        });
+    }
+    
+    if (tugs.length === 0) {
+        tugBreakdownHTML += '<div style="font-size: 0.8rem; color: #666;">No tugs dispatched.</div>';
+    } else {
+        tugs.forEach((tug, index) => {
+            tugBreakdownHTML += `
+            <div style="margin-top: 0.75rem; background: #fdfdfd; padding: 0.6rem 0.75rem; border-radius: 6px; border: 1px solid #e8e4db; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                <div style="font-weight: 700; font-size: 0.85rem; color: var(--accent); margin-bottom: 0.4rem; border-bottom: 1px solid #f0ece5; padding-bottom: 0.2rem;">
+                    Tug ${index + 1} <span style="font-weight: 500; color: var(--text-muted); font-size: 0.75rem;">(${tug.type})</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.2rem; color: var(--text-main);">
+                    <span style="flex: 1;">Docking</span>
+                    <span style="flex: 1; text-align: center; color: var(--text-muted);">${tug.dockingUnit}</span>
+                    <span style="flex: 1; text-align: right;">${formatMoney(tug.dockingCost)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.2rem; color: var(--text-main);">
+                    <span style="flex: 1;">+40k NRT</span>
+                    <span style="flex: 1; text-align: center; color: var(--text-muted);">${tug.nrtUnit}</span>
+                    <span style="flex: 1; text-align: right;">${formatMoney(tug.nrtCost)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.2rem; color: var(--text-main);">
+                    <span style="flex: 1;">Fuel</span>
+                    <span style="flex: 1; text-align: center; color: var(--text-muted);">${tug.fuelUnit}</span>
+                    <span style="flex: 1; text-align: right;">${formatMoney(tug.fuelCost)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; color: var(--text-main);">
+                    <span style="flex: 1;">Escort</span>
+                    <span style="flex: 1; text-align: center; color: var(--text-muted); font-weight: 400;">${tug.escortUnit}</span>
+                    <span style="flex: 1; text-align: right;">${formatMoney(tug.escortCost)}</span>
+                </div>
+            </div>`;
+        });
+    }
+    
+    const breakdownContainer = document.getElementById('tugBreakdownContainer');
+    if (breakdownContainer) breakdownContainer.innerHTML = tugBreakdownHTML;
 }
 
-function setRate(value) {
-    document.getElementById('yearRate').value = value;
-    updateModel();
-}
+function setRate(value) { document.getElementById('yearRate').value = value; updateModel(); }
+function setEscortRate(value) { document.getElementById('escortRate').value = value; updateModel(); }
+function setFuelPrice(value) { document.getElementById('fuel').value = value; updateModel(); }
 
-function setEscortRate(value) {
-    document.getElementById('escortRate').value = value;
-    updateModel();
-}
-
-function setFuelPrice(value) {
-    document.getElementById('fuel').value = value;
-    updateModel();
-}
-
-// Handler for the unit stepper buttons
 function stepValue(id, delta) {
     const input = document.getElementById(id);
     const display = document.getElementById(id + '-display');
-
     let currentVal = parseInt(input.value) || 0;
     currentVal += delta;
-
     input.value = currentVal;
     display.innerText = currentVal;
-
     updateModel();
 }
 
-// Handler specifically for the time stepper (decimal math)
-function stepTimeValue(delta) {
-    const input = document.getElementById('adjTime');
-
+function stepTimeValue(id, delta) {
+    const input = document.getElementById(id);
+    if (!input) return;
     let currentVal = parseFloat(input.value) || 0;
     currentVal += delta;
-
-    // Prevent negative maneuver time
-    if (currentVal < 0) {
-        currentVal = 0;
-    }
-
+    if (currentVal < 0) currentVal = 0; // Prevent negative time
     input.value = currentVal;
-
-    // Display update is handled cleanly by updateModel()
     updateModel();
 }
 
-// Initialize
+// Initialize: Set fuel and run the routing handler to seed the initial math
 document.getElementById('fuel').value = getCurrentFuelPrice();
-updateModel();
+handleRoutingChange(true);
